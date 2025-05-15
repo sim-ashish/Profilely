@@ -9,14 +9,14 @@ class UserRepository:
         self.db = db
 
     def user_exist(self, email: str) -> bool:
-        user_instance = self.db.query(User).filter(User.email == email).first()
+        user_instance = self.db.query(User).filter(User.email == email, User.is_verified == True).first()
         if user_instance:
             return True
         
         return False
     
     def user_exist_by_id(self, id: int) -> bool:
-        user_instance = self.db.query(User).filter(User.id == id).first()
+        user_instance = self.db.query(User).filter(User.id == id, User.is_verified == True).first()
         if user_instance:
             return True
         
@@ -34,7 +34,7 @@ class UserRepository:
         return user_instance, None
     
     def get_user_by_email(self, email) -> User:
-        user_instance = self.db.query(User).filter(User.email == email).first()
+        user_instance = self.db.query(User).filter(User.email == email, User.is_verified == True).first()
         return user_instance
     
     def get_user_context(self, email) -> str:
@@ -44,7 +44,7 @@ class UserRepository:
         return context_data
     
     def verify_profile(self, email) -> dict:
-        user_instance = self.db.query(User).filter(User.email == email).first()
+        user_instance = self.db.query(User).filter(User.email == email, User.is_verified == True).first()
         user_instance.is_verified = True
 
         self.db.commit()
@@ -53,7 +53,7 @@ class UserRepository:
         return {'detail' : 'account verified, now you can login'}
 
     def get_current_user(self, email: str) -> UserOutput:
-        user_instance = self.db.query(User).filter(User.email == email).first()
+        user_instance = self.db.query(User).filter(User.email == email, User.is_verified == True).first()
         user_dict = {key: value for key, value in user_instance.__dict__.items() if not key.startswith('_')}
         user_model = UserOutput(**user_dict)
         if not user_instance.is_superuser:
@@ -63,7 +63,7 @@ class UserRepository:
     
 
     def authenticate_user(self, email: str, password: str) -> bool | User:
-        user_instance = self.db.query(User).filter(User.email == email).first()
+        user_instance = self.db.query(User).filter(User.email == email, User.is_verified == True).first()
         if not user_instance:
             return False
         if not verify_password(password, user_instance.password):
@@ -73,7 +73,7 @@ class UserRepository:
 
     def all_users(self, exclude_id: int, super_user: bool) -> list[User]:
         if not super_user:
-            users = self.db.query(User.first_name, User.last_name, User.email, User.bio).filter(User.id != exclude_id).all()
+            users = self.db.query(User.first_name, User.last_name, User.email, User.bio).filter(User.id != exclude_id, User.is_verified == True).all()
             return users
         
         users = self.db.query(User).filter(User.id != exclude_id).all()
@@ -82,14 +82,14 @@ class UserRepository:
     
     def get_user(self, user_id: int, super_user: bool) -> User:
         if not super_user:
-            user = self.db.query(User.first_name, User.last_name, User.email, User.bio).filter(User.id == user_id).first()
+            user = self.db.query(User.first_name, User.last_name, User.email, User.bio).filter(User.id == user_id, User.is_verified == True).first()
             return user
         
         user = self.db.query(User).filter(User.id == user_id).first()
         return user
     
     def reset_password(self, email: str, new_password: str) -> dict:
-        user_instance = self.db.query(User).filter(User.email == email).first()
+        user_instance = self.db.query(User).filter(User.email == email, User.is_verified == True).first()
         user_instance.password = new_password
         self.db.commit()
         self.db.refresh(user_instance)
@@ -97,12 +97,12 @@ class UserRepository:
         return {'detail' : 'your password has been reset successfully'}
     
     def update_data(self, email: str, data: UserUpdate):
-        self.db.query(User).filter(User.email == email).update(data.model_dump(exclude_unset = True))
+        self.db.query(User).filter(User.email == email, User.is_verified == True).update(data.model_dump(exclude_unset = True))
         self.db.commit()
         return
     
     def verify_and_destroy(self, user_id: int):
-        user_instance = self.db.query(User).filter(User.id == user_id).first()
+        user_instance = self.db.query(User).filter(User.id == user_id, User.is_verified == True).first()
         if user_instance:
             self.db.delete(user_instance)
             self.db.commit()

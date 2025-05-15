@@ -15,6 +15,13 @@ class UserRepository:
         
         return False
     
+    def user_exist_for_verification(self, email: str) -> bool:
+        user_instance = self.db.query(User).filter(User.email == email).first()
+        if user_instance:
+            return True
+        
+        return False
+    
     def user_exist_by_id(self, id: int) -> bool:
         user_instance = self.db.query(User).filter(User.id == id, User.is_verified == True).first()
         if user_instance:

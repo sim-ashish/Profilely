@@ -41,7 +41,7 @@ class UserService:
 
     def verify_account(self, token, data) -> dict | HTTPException:
         email = encode_decode.decode_data(data.strip()).strip()
-        if not self.repository.user_exist(email):
+        if not self.repository.user_exist_for_verification(email):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='user not found')
         
         user_context = self.repository.get_user_context(email)

@@ -15,7 +15,7 @@ class UserRepository:
         
         return False
     
-    def user_exist_for_verification(self, email: str) -> bool:
+    def user_exist_with_email(self, email: str) -> bool:
         user_instance = self.db.query(User).filter(User.email == email).first()
         if user_instance:
             return True

@@ -16,7 +16,7 @@ class UserService:
 
 
     def create(self, user: UserInput) -> dict | HTTPException:
-        if self.repository.user_exist(user.email):
+        if self.repository.user_exist_with_email(user.email):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='user with same email already registered')
         
         user.password = hashing.hash_password(user.password)        # hashing the password before creating instance
@@ -41,7 +41,7 @@ class UserService:
 
     def verify_account(self, token, data) -> dict | HTTPException:
         email = encode_decode.decode_data(data.strip()).strip()
-        if not self.repository.user_exist_for_verification(email):
+        if not self.repository.user_exist_with_email(email):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='user not found')
         
         user_context = self.repository.get_user_context(email)

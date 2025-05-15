@@ -51,7 +51,7 @@ class UserRepository:
         return context_data
     
     def verify_profile(self, email) -> dict:
-        user_instance = self.db.query(User).filter(User.email == email, User.is_verified == True).first()
+        user_instance = self.db.query(User).filter(User.email == email).first()
         user_instance.is_verified = True
 
         self.db.commit()

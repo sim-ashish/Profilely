@@ -3,6 +3,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from app.router import user_router
+from app.utils.db_init import create_models
 
 description = """
 Profilely API helps you do awesome stuff. 🚀
@@ -41,6 +42,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.on_event("startup")
+def on_startup()-> None:
+     create_models()
 
 app.include_router(user_router.router)
 

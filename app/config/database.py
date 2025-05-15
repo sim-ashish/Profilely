@@ -4,10 +4,10 @@ from settings import settings
 from typing import Generator
 
 
-__engine = create_engine(settings.DATABASE, echo=False)
+engine = create_engine(settings.DATABASE, echo=False)
 
 SessionLocal = sessionmaker(
-                        bind=__engine,
+                        bind=engine,
                         autocommit = False,
                         autoflush = False
                         )
